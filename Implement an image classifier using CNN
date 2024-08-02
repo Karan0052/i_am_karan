@@ -1,0 +1,39 @@
+#Implement an image classifier using CNN: Use an appropriate date set for building the network and apply different regularization functions to classify.
+
+import tensorflow as tf
+from tensorflow.keras.datasets import cifar10
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
+from tensorflow.keras.utils import to_categorical
+
+# Load and prepare CIFAR-10 dataset
+(X_train, y_train), (X_test, y_test) = cifar10.load_data()
+X_train, X_test = X_train / 255.0, X_test / 255.0  # Normalize
+y_train, y_test = to_categorical(y_train), to_categorical(y_test)
+
+# Define the CNN model
+def create_model():
+    model = Sequential([
+        Conv2D(16, (3, 3), activation='relu', padding='same', input_shape=(32, 32, 3)),
+        MaxPooling2D(),
+        Conv2D(32, (3, 3), activation='relu', padding='same'),
+        MaxPooling2D(),
+        Flatten(),
+        Dense(128, activation='relu'),
+        Dropout(0.3),
+        Dense(10, activation='softmax')
+    ])
+    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    return model
+
+# Create and train the model
+model = create_model()
+model.summary()
+
+# Train the model with fewer epochs
+model.fit(X_train, y_train, epochs=3, batch_size=64, validation_split=0.1)
+
+# Evaluate the model
+loss, accuracy = model.evaluate(X_test, y_test)
+print(f'Test accuracy: {accuracy * 100:.2f}%')
+
